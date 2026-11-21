@@ -63,7 +63,14 @@ final class TemplateWall {
             return candidate.filter().is(TagKey.create(Registries.ITEM, requirement.tag()))
                     || candidate.filter().getItem() == requirement.sample().getItem();
         }
-        return ItemStack.isSameItemSameComponents(candidate.filter(), requirement.sample());
+        return ItemStack.isSameItemSameComponents(candidate.filter(), requirement.sample())
+                || sharesItemTag(candidate.filter(), requirement.sample());
+    }
+
+    private static boolean sharesItemTag(ItemStack a, ItemStack b) {
+        java.util.Set<TagKey<net.minecraft.world.item.Item>> tags =
+                a.getItemHolder().tags().collect(java.util.stream.Collectors.toSet());
+        return !tags.isEmpty() && b.getItemHolder().tags().anyMatch(tags::contains);
     }
 
     static List<Candidate> scan(ServerLevel level, TemplatePanelBehaviour origin) {

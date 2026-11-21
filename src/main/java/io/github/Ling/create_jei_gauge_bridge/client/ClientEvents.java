@@ -16,5 +16,6 @@ public final class ClientEvents {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         ClientScreens.tick();
+        GoggleGaugeHighlighter.tick();
     }
 }

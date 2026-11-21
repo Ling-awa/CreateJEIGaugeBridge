@@ -186,7 +186,12 @@ public record RecipeSnapshot(
      * gauge in plain monitoring mode.
      */
     private static List<ItemStack> buildArrangement(Object recipe) {
-        if (!(recipe instanceof RecipeHolder<?> holder) || !(holder.value() instanceof CraftingRecipe crafting)) {
+        return recipe instanceof RecipeHolder<?> holder ? arrangementFor(holder) : List.of();
+    }
+
+    /** Public so the EMI compat layer can build the same 3x3 arrangement from a backing recipe. */
+    public static List<ItemStack> arrangementFor(RecipeHolder<?> holder) {
+        if (holder == null || !(holder.value() instanceof CraftingRecipe crafting)) {
             return List.of();
         }
         NonNullList<Ingredient> ingredients = crafting.getIngredients();

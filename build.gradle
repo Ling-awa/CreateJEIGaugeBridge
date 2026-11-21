@@ -10,6 +10,34 @@ group = mod_group_id
 
 repositories {
     mavenLocal()
+
+    // Create (机械动力) - official maven. The old maven.tterrag.com host is gone.
+    maven {
+        name = 'CreateMod'
+        url = 'https://maven.createmod.net'
+    }
+
+    // JEI - official maven. This repository also serves the JEI API artifacts.
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com'
+    }
+
+    // Cloth Config - runtime prerequisite of the optional Create: Improve (see dependencies below).
+    maven {
+        name = 'Shedaniel'
+        url = 'https://maven.shedaniel.me'
+    }
+
+    // Create: Improve and Create: Fluid Logistics - optional addons mirrored by Modrinth's maven.
+    // Coordinates are maven.modrinth:<modrinth slug>:<modrinth version number>.
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content {
+            includeGroup 'maven.modrinth'
+        }
+    }
 }
 
 base {
@@ -96,26 +124,55 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    // Example mod dependency with JEI
-    // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
-    // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
-    // compileOnly "mezz.jei:jei-${mc_version}-forge-api:${jei_version}"
-    // runtimeOnly "mezz.jei:jei-${mc_version}-forge:${jei_version}"
+    // =============================================================================================
+    // REQUIRED: Create - the factory gauge / logistics API this mod bridges into JEI.
+    // =============================================================================================
+    // compileOnly on purpose: Create must never be packaged into our jar, the player's mods/ folder
+    // provides it. transitive = false because Create's pom pulls compile-time-only integration libs
+    // (FTB, Curios, CC:Tweaked, Architectury, journeymap, Farmer's Delight) that no reachable maven
+    // serves; Create's own jar-in-jar supplies what it needs at runtime.
+    compileOnly("com.simibubi.create:create-1.21.1:${create_version}") { transitive = false }
+    // Create's compile-time companions. javac needs them to resolve parts of Create's class
+    // hierarchy (SmartBlockEntity -> ponder's VirtualBlockEntity, renderers -> flywheel) even when
+    // our code only touches gauge classes.
+    compileOnly("net.createmod.ponder:ponder-neoforge:${ponder_version}") { transitive = false }
+    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-1.21.1:${flywheel_version}") { transitive = false }
+    // Dev runtime only: neoforge.mods.toml declares Create as required, so runClient/runServer
+    // refuse to start without it. runtimeOnly never reaches the published jar.
+    runtimeOnly("com.simibubi.create:create-1.21.1:${create_version}") { transitive = false }
 
-    // Example mod dependency using a mod jar from ./libs with a flat dir repository
-    // This maps to ./libs/coolmod-${mc_version}-${coolmod_version}.jar
-    // The group id is ignored when searching -- in this case, it is "blank"
-    // implementation "blank:coolmod-${mc_version}:${coolmod_version}"
+    // =============================================================================================
+    // REQUIRED: JEI - the recipe viewer the gauge categories are registered with.
+    // =============================================================================================
+    // The API artifact is compile-time only (the player's mods/ folder ships the implementation);
+    // the full artifact is what the dev client loads at runtime.
+    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:${jei_version}"
+    runtimeOnly "mezz.jei:jei-1.21.1-neoforge:${jei_version}"
 
-    // Example mod dependency using a file as dependency
-    // implementation files("libs/coolmod-${mc_version}-${coolmod_version}.jar")
+    // =============================================================================================
+    // OPTIONAL: Create: Improve - extra gauges and template panels, integrated when present.
+    // =============================================================================================
+    // Declared with type = "optional" in neoforge.mods.toml, so the mod still loads when it is absent.
+    // compileOnly lets compat code reference its API without ever linking to it at runtime.
+    compileOnly("maven.modrinth:create-improve:${createimp_version}") { transitive = false }
+    // Installed into the dev runtime for testing.
+    runtimeOnly("maven.modrinth:create-improve:${createimp_version}") { transitive = false }
+    // Create: Improve hard-requires Cloth Config (its own neoforge.mods.toml lists it as required).
+    // Without this jar FML aborts the whole game, so it is part of the dev runtime even though this
+    // project never compiles against it.
+    runtimeOnly("me.shedaniel.cloth:cloth-config-neoforge:${cloth_config_version}") { transitive = false }
 
-    // Example project dependency using a sister or child project:
-    // implementation project(":myproject")
+    // =============================================================================================
+    // OPTIONAL: Create: Fluid Logistics - fluid factory gauges, integrated when present.
+    // =============================================================================================
+    compileOnly("maven.modrinth:createfluidlogistic:${fluidlogistics_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:createfluidlogistic:${fluidlogistics_version}") { transitive = false }
 
-    // For more info:
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+    // =============================================================================================
+    // OPTIONAL: EMI - a second recipe viewer. Its "+" support uses its own handler API.
+    // =============================================================================================
+    compileOnly("maven.modrinth:emi:${emi_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:emi:${emi_version}") { transitive = false }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -126,6 +183,8 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
                              neo_version            : neo_version,
                              neo_version_range      : neo_version_range,
                              loader_version_range   : loader_version_range,
+                             create_version_range   : create_version_range,
+                             jei_version_range      : jei_version_range,
                              mod_id                 : mod_id,
                              mod_name               : mod_name,
                              mod_license            : mod_license,

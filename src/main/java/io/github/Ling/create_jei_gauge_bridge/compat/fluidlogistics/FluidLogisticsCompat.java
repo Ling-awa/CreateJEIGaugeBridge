@@ -58,6 +58,16 @@ public final class FluidLogisticsCompat {
         return PackageResourceTypes.createFluidKey(fluid);
     }
 
+    /** The fluid a filter stack (fluid key or container) refers to. */
+    public static FluidStack fluidOfFilter(ItemStack filter) {
+        return filter.isEmpty() ? FluidStack.EMPTY : PackageResourceTypes.getFluid(filter);
+    }
+
+    /** The fluid a held stack carries, when it is itself a Fluid Logistics key. */
+    public static FluidStack fluidOfStack(ItemStack stack) {
+        return stack.isEmpty() ? FluidStack.EMPTY : PackageResourceTypes.getFluid(stack);
+    }
+
     /**
      * The fluid gauge's item screen is a subclass of Create's menu, but JEI looks handlers up by
      * the exact container class, so it needs a registration of its own.

@@ -1,5 +1,23 @@
 {
-  "itemGroup.create_jei_gauge_bridge": "Example Mod Tab",
-  "block.create_jei_gauge_bridge.example_block": "Example Block",
-  "item.create_jei_gauge_bridge.example_item": "Example Item"
+  "create_jei_gauge_bridge.message.import_tooltip": "Import recipe into gauge",
+  "create_jei_gauge_bridge.message.too_many_types": "Too many ingredient types!",
+  "create_jei_gauge_bridge.message.missing_gauges": "Link failed — no gauge monitoring %s",
+  "create_jei_gauge_bridge.message.linked": "Recipe imported, linked %s gauge(s)",
+  "create_jei_gauge_bridge.message.linked_with_missing": "Recipe imported, linked %s gauge(s); not found: %s",
+  "create_jei_gauge_bridge.message.unsupported_output": "This recipe has no item output the gauge can monitor",
+  "create_jei_gauge_bridge.message.unsupported_fluid_output": "This recipe has no fluid output the gauge can monitor",
+  "create_jei_gauge_bridge.message.template_needs_output": "This recipe has no output the template panel can monitor",
+  "create_jei_gauge_bridge.message.invalid_filter": "This output cannot be monitored by the gauge",
+  "create_jei_gauge_bridge.message.too_many_inputs": "The gauge has no free input slots",
+  "create_jei_gauge_bridge.message.highlight_pinned": "Highlight pinned for %ss",
+
+  "create_jei_gauge_bridge.configuration.highlightConnections": "Highlight viewed gauge connections",
+  "create_jei_gauge_bridge.configuration.highlightConnections.OFF": "Off",
+  "create_jei_gauge_bridge.configuration.highlightConnections.SNEAKING_ONLY": "Sneaking only",
+  "create_jei_gauge_bridge.configuration.highlightConnections.ALWAYS": "Always",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem": "Highlight gauges for the held item",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem.OFF": "Off",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem.SNEAKING_ONLY": "Sneaking only",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem.ALWAYS": "Always",
+  "create_jei_gauge_bridge.configuration.pinDurationSeconds": "Pinned highlight duration (seconds)"
 }

@@ -8,5 +8,16 @@
   "create_jei_gauge_bridge.message.unsupported_fluid_output": "该配方没有可被流体仪表监测的流体产物",
   "create_jei_gauge_bridge.message.template_needs_output": "该配方没有可被模板仪表监测的产物",
   "create_jei_gauge_bridge.message.invalid_filter": "该产物无法被此仪表监测",
-  "create_jei_gauge_bridge.message.too_many_inputs": "仪表的输入口已满"
+  "create_jei_gauge_bridge.message.too_many_inputs": "仪表的输入口已满",
+  "create_jei_gauge_bridge.message.highlight_pinned": "高亮已固定 %s 秒",
+
+  "create_jei_gauge_bridge.configuration.highlightConnections": "高亮查看的仪表连接",
+  "create_jei_gauge_bridge.configuration.highlightConnections.OFF": "关闭",
+  "create_jei_gauge_bridge.configuration.highlightConnections.SNEAKING_ONLY": "仅潜行",
+  "create_jei_gauge_bridge.configuration.highlightConnections.ALWAYS": "一直",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem": "高亮手持物品对应仪表",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem.OFF": "关闭",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem.SNEAKING_ONLY": "仅潜行",
+  "create_jei_gauge_bridge.configuration.highlightHeldItem.ALWAYS": "一直",
+  "create_jei_gauge_bridge.configuration.pinDurationSeconds": "固定高亮时长（秒）"
 }
