@@ -1,0 +1,12 @@
+{
+  "create_jei_gauge_bridge.message.import_tooltip": "导入配方到仪表",
+  "create_jei_gauge_bridge.message.too_many_types": "材料种类过多！",
+  "create_jei_gauge_bridge.message.missing_gauges": "链接失败：缺少监测 %s 的仪表",
+  "create_jei_gauge_bridge.message.linked": "已导入配方，连接了 %s 个仪表",
+  "create_jei_gauge_bridge.message.linked_with_missing": "已导入配方，连接了 %s 个仪表；未找到：%s",
+  "create_jei_gauge_bridge.message.unsupported_output": "该配方没有可被仪表监测的物品产物",
+  "create_jei_gauge_bridge.message.unsupported_fluid_output": "该配方没有可被流体仪表监测的流体产物",
+  "create_jei_gauge_bridge.message.template_needs_output": "该配方没有可被模板仪表监测的产物",
+  "create_jei_gauge_bridge.message.invalid_filter": "该产物无法被此仪表监测",
+  "create_jei_gauge_bridge.message.too_many_inputs": "仪表的输入口已满"
+}
