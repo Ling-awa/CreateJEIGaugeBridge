@@ -60,17 +60,9 @@ final class TemplateWall {
                     && FluidLogisticsCompat.matchesFluid(candidate.filter(), requirement);
         }
         if (requirement.tag() != null) {
-            return candidate.filter().is(TagKey.create(Registries.ITEM, requirement.tag()))
-                    || candidate.filter().getItem() == requirement.sample().getItem();
+            return candidate.filter().is(TagKey.create(Registries.ITEM, requirement.tag()));
         }
-        return ItemStack.isSameItemSameComponents(candidate.filter(), requirement.sample())
-                || sharesItemTag(candidate.filter(), requirement.sample());
-    }
-
-    private static boolean sharesItemTag(ItemStack a, ItemStack b) {
-        java.util.Set<TagKey<net.minecraft.world.item.Item>> tags =
-                a.getItemHolder().tags().collect(java.util.stream.Collectors.toSet());
-        return !tags.isEmpty() && b.getItemHolder().tags().anyMatch(tags::contains);
+        return ItemStack.isSameItemSameComponents(candidate.filter(), requirement.sample());
     }
 
     static List<Candidate> scan(ServerLevel level, TemplatePanelBehaviour origin) {
@@ -115,6 +107,21 @@ final class TemplateWall {
         // same neighbour instead of depending on block iteration order.
         result.sort(Comparator.comparingDouble(candidate -> candidate.pos().distSqr(originPos)));
         return result;
+    }
+
+    static boolean isFilterGauge(Candidate candidate) {
+        return candidate.factoryPanel() != null
+                && ModList.get().isLoaded("extra_gauges")
+                && io.github.Ling.create_jei_gauge_bridge.compat.extragauges.ExtraGaugesCompat
+                .isFilterPanel(candidate.factoryPanel());
+    }
+
+    /** Filter gauges qualify only when their whole filter set is valid for the requirement. */
+    static boolean matchesFilterGauge(ServerLevel level, Candidate candidate, Requirement requirement) {
+        return candidate.factoryPanel() != null
+                && ModList.get().isLoaded("extra_gauges")
+                && io.github.Ling.create_jei_gauge_bridge.compat.extragauges.ExtraGaugesCompat
+                .filterCovers(candidate.factoryPanel(), requirement, level);
     }
 
     static TemplatePanelPosition positionOf(Candidate candidate) {

@@ -173,6 +173,15 @@ dependencies {
     // =============================================================================================
     compileOnly("maven.modrinth:emi:${emi_version}") { transitive = false }
     runtimeOnly("maven.modrinth:emi:${emi_version}") { transitive = false }
+
+    // =============================================================================================
+    // OPTIONAL: Create: Extra Gauges - filter gauges can act as recipe ingredient sources.
+    // =============================================================================================
+    compileOnly("maven.modrinth:extra-gauges:${extra_gauges_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:extra-gauges:${extra_gauges_version}") { transitive = false }
+    // Extra Gauges 2.x is built on Deployer, whose panel base classes our compat references.
+    compileOnly("maven.modrinth:deployer:${deployer_version}") { transitive = false }
+    runtimeOnly("maven.modrinth:deployer:${deployer_version}") { transitive = false }
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

@@ -78,3 +78,11 @@ type = "optional"
 versionRange = "*"
 ordering = "AFTER"
 side = "CLIENT"
+
+# Create: Extra Gauges - filter gauges can be picked as recipe ingredient sources.
+[[dependencies."${mod_id}"]]
+modId = "extra_gauges"
+type = "optional"
+versionRange = "*"
+ordering = "AFTER"
+side = "BOTH"

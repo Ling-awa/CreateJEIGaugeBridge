@@ -9,6 +9,7 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelSetItemMen
 import dev.emi.emi.api.recipe.EmiRecipe;
 import dev.emi.emi.api.stack.EmiIngredient;
 import dev.emi.emi.api.stack.EmiStack;
+import dev.emi.emi.api.stack.TagEmiIngredient;
 import io.github.Ling.create_jei_gauge_bridge.compat.fluidlogistics.FluidLogisticsCompat;
 import io.github.Ling.create_jei_gauge_bridge.compat.jei.RecipeSnapshot;
 import io.github.Ling.create_jei_gauge_bridge.logic.GaugeImporter;
@@ -136,7 +137,10 @@ public final class EmiImport {
                         continue;
                     }
                     samples.add(stack.copyWithCount(1));
-                    tags.add(null);
+                    // EMI normally resolves tags into stacks; TagEmiIngredient still exposes the
+                    // key, which lets the server match the recipe's real tag instead of guessing
+                    // from a representative item.
+                    tags.add(tagOf(input));
                 }
             }
 
@@ -194,5 +198,14 @@ public final class EmiImport {
         } catch (RuntimeException exception) {
             return ItemStack.EMPTY;
         }
+    }
+
+    /** The item tag behind an EMI ingredient, when EMI kept it instead of resolving the stacks. */
+    private static ResourceLocation tagOf(EmiIngredient ingredient) {
+        if (ingredient instanceof TagEmiIngredient tagIngredient
+                && net.minecraft.core.registries.Registries.ITEM.equals(tagIngredient.key.registry())) {
+            return tagIngredient.key.location();
+        }
+        return null;
     }
 }

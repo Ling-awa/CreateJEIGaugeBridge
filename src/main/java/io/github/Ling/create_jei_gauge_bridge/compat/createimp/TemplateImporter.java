@@ -101,11 +101,23 @@ public final class TemplateImporter {
         for (Requirement requirement : requirements) {
             TemplateWall.Candidate match = null;
             for (TemplateWall.Candidate candidate : wall) {
-                if (claimed.contains(candidate) || !TemplateWall.matches(candidate, requirement)) {
+                if (claimed.contains(candidate) || TemplateWall.isFilterGauge(candidate)) {
                     continue;
                 }
-                match = candidate;
-                break;
+                if (TemplateWall.matches(candidate, requirement)) {
+                    match = candidate;
+                    break;
+                }
+            }
+            if (match == null) {
+                for (TemplateWall.Candidate candidate : wall) {
+                    if (claimed.contains(candidate)
+                            || !TemplateWall.matchesFilterGauge(level, candidate, requirement)) {
+                        continue;
+                    }
+                    match = candidate;
+                    break;
+                }
             }
             if (match == null) {
                 missing.add(requirement);

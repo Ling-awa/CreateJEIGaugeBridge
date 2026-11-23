@@ -74,6 +74,50 @@ public final class GaugeImporter {
         importIntoFactoryPanel(serverPlayer, level, payload);
     }
 
+    private static FactoryPanelBehaviour findDirectMatch(List<FactoryPanelBehaviour> wall,
+                                                         List<FactoryPanelBehaviour> claimed,
+                                                         Requirement requirement) {
+        for (FactoryPanelBehaviour candidate : wall) {
+            if (claimed.contains(candidate) || candidate.getFilter().isEmpty()) {
+                continue;
+            }
+            // Filter gauges are handled separately: their filter may accept items the recipe does
+            // not allow, so they only qualify when the whole filter set is valid.
+            if (ModList.get().isLoaded("extra_gauges")
+                    && io.github.Ling.create_jei_gauge_bridge.compat.extragauges.ExtraGaugesCompat
+                    .isFilterPanel(candidate)) {
+                continue;
+            }
+            if (PanelRequirements.matches(candidate, requirement)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Create: Extra Gauges filter gauges are accepted only when every item their filter accepts is
+     * valid for the recipe ingredient. Otherwise the gauge is skipped and the search continues.
+     */
+    private static FactoryPanelBehaviour findFilterGaugeMatch(ServerLevel level,
+                                                              List<FactoryPanelBehaviour> wall,
+                                                              List<FactoryPanelBehaviour> claimed,
+                                                              Requirement requirement) {
+        if (!ModList.get().isLoaded("extra_gauges")) {
+            return null;
+        }
+        for (FactoryPanelBehaviour candidate : wall) {
+            if (claimed.contains(candidate)) {
+                continue;
+            }
+            if (io.github.Ling.create_jei_gauge_bridge.compat.extragauges.ExtraGaugesCompat
+                    .filterCovers(candidate, requirement, level)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
     private static void importIntoFactoryPanel(ServerPlayer player, ServerLevel level,
                                                ImportRecipePayload payload) {
         if (payload.slot() < 0 || payload.slot() >= SLOTS.length) {
@@ -132,15 +176,9 @@ public final class GaugeImporter {
         List<FactoryPanelBehaviour> claimed = new ArrayList<>();
 
         for (Requirement requirement : requirements) {
-            FactoryPanelBehaviour match = null;
-            for (FactoryPanelBehaviour candidate : wall) {
-                if (claimed.contains(candidate) || candidate.getFilter().isEmpty()) {
-                    continue;
-                }
-                if (PanelRequirements.matches(candidate, requirement)) {
-                    match = candidate;
-                    break;
-                }
+            FactoryPanelBehaviour match = findDirectMatch(wall, claimed, requirement);
+            if (match == null) {
+                match = findFilterGaugeMatch(level, wall, claimed, requirement);
             }
             if (match == null) {
                 missing.add(requirement);

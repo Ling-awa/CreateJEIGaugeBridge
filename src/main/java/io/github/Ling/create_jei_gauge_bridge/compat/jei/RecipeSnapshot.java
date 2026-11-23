@@ -9,6 +9,7 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
@@ -63,12 +64,20 @@ public record RecipeSnapshot(
             if (items.isEmpty()) {
                 continue;
             }
-            ItemStack sample = slot.getDisplayedIngredient(VanillaTypes.ITEM_STACK).orElse(items.get(0));
+            ItemStack sample = items.get(0);
             if (sample.isEmpty()) {
                 continue;
             }
             samples.add(sample.copyWithCount(1));
-            tags.add(slot.getTagKey().map(TagKey::location).orElse(null));
+            ResourceLocation tag = slot.getTagKey().map(TagKey::location).orElse(null);
+            if (tag == null) {
+                // JEI's vanilla crafting category adds ingredients as plain stacks, losing the
+                // tag. For multi-variant slots (planks, stripped logs, ...) recover the smallest
+                // tag that contains every option, so matching stays tag-accurate instead of
+                // guessing from one representative item.
+                tag = inferTag(items);
+            }
+            tags.add(tag);
         }
 
         Map<Fluid, Integer> fluidTypeIndex = new LinkedHashMap<>();
@@ -151,8 +160,50 @@ public record RecipeSnapshot(
                 ingredientSamples, ingredientTags, fluidKeys, fluidAmounts, fluidNames, arrangement);
     }
 
-    private static void addFluidRequirement(Map<Fluid, Integer> index, List<ItemStack> keys,
-                                            List<Integer> amounts, List<String> names,
+    /**
+     * The most specific item tag containing every stack of a multi-variant slot, or {@code null}.
+     * Single-item slots deliberately return null so they match exactly instead of by a broad tag.
+     */
+    private static ResourceLocation inferTag(List<ItemStack> items) {
+        if (items.size() < 2) {
+            return null;
+        }
+        Set<Item> distinct = new HashSet<>();
+        for (ItemStack stack : items) {
+            if (!stack.isEmpty()) {
+                distinct.add(stack.getItem());
+            }
+        }
+        if (distinct.size() < 2) {
+            return null;
+        }
+
+        ItemStack first = items.get(0);
+        ResourceLocation best = null;
+        int bestSize = Integer.MAX_VALUE;
+        for (TagKey<Item> tag : first.getItemHolder().tags().toList()) {
+            boolean containsAll = true;
+            for (ItemStack stack : items) {
+                if (!stack.isEmpty() && !stack.is(tag)) {
+                    containsAll = false;
+                    break;
+                }
+            }
+            if (!containsAll) {
+                continue;
+            }
+            int size = BuiltInRegistries.ITEM.getTag(tag)
+                    .map(holders -> holders.size())
+                    .orElse(Integer.MAX_VALUE);
+            if (size < bestSize) {
+                bestSize = size;
+                best = tag.location();
+            }
+        }
+        return best;
+    }
+
+    private static void addFluidRequirement(Map<Fluid, Integer> index, List<ItemStack> keys,                                            List<Integer> amounts, List<String> names,
                                             FluidStack fluid, boolean fluidLogistics) {
         if (fluid.isEmpty()) {
             return;

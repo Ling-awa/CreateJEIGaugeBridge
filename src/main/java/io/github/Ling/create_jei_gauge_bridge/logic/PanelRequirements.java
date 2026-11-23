@@ -4,12 +4,8 @@ import com.simibubi.create.content.logistics.factoryBoard.FactoryPanelBehaviour;
 import io.github.Ling.create_jei_gauge_bridge.compat.fluidlogistics.FluidLogisticsCompat;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.ModList;
-
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Decides whether a wall panel monitors what a recipe requirement asks for.
@@ -37,23 +33,10 @@ public final class PanelRequirements {
             return false;
         }
         if (requirement.tag() != null) {
-            // Tag first; fall back to the representative item in case the client's tag key cannot
-            // be resolved on the server (datapack tag differences between client and server).
-            return filter.is(TagKey.create(Registries.ITEM, requirement.tag()))
-                    || filter.getItem() == requirement.sample().getItem()
-                    || sharesItemTag(filter, requirement.sample());
+            // Tag ingredients match by that exact tag: a stripped-log recipe must not link a
+            // regular log gauge just because both are in #minecraft:logs.
+            return filter.is(TagKey.create(Registries.ITEM, requirement.tag()));
         }
-        return ItemStack.isSameItemSameComponents(filter, requirement.sample())
-                || sharesItemTag(filter, requirement.sample());
-    }
-
-    /**
-     * EMI resolves recipe tags to concrete stacks, so a recipe asking for any plank arrives as one
-     * arbitrary wood type. Sharing an item tag keeps those recipes linking to the wood the player
-     * actually monitors.
-     */
-    private static boolean sharesItemTag(ItemStack a, ItemStack b) {
-        Set<TagKey<Item>> tags = a.getItemHolder().tags().collect(Collectors.toSet());
-        return !tags.isEmpty() && b.getItemHolder().tags().anyMatch(tags::contains);
+        return ItemStack.isSameItemSameComponents(filter, requirement.sample());
     }
 }

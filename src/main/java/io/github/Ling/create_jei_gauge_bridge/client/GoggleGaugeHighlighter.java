@@ -355,6 +355,12 @@ public final class GoggleGaugeHighlighter {
             return !panelFluid.isEmpty() && panelFluid.getFluid() == heldFluid.getFluid();
         }
         ItemStack filter = panel.getFilter();
+        if (ModList.get().isLoaded("extra_gauges")
+                && io.github.Ling.create_jei_gauge_bridge.compat.extragauges.ExtraGaugesCompat
+                .filterAccepts(panel, held)) {
+            // A filter gauge monitors every item its filter accepts, not just the current one.
+            return true;
+        }
         if (filter.isEmpty()) {
             return false;
         }
